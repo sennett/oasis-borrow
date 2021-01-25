@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { combineLatest, EMPTY, forkJoin, Observable } from 'rxjs'
+import { combineLatest, EMPTY, Observable } from 'rxjs'
 import { switchMap } from 'rxjs/operators'
 import { GetCdps } from 'types/web3-v1-contracts/get-cdps'
 
@@ -41,6 +41,6 @@ export function createVaults$(
         return call(context, getCdps)({ proxyAddress, descending: true })
       },
     ),
-    switchMap(({ ids }) => forkJoin(ids.map((id) => vault$(new BigNumber(id))))),
+    switchMap(({ ids }) => combineLatest(ids.map((id) => vault$(new BigNumber(id))))),
   )
 }
