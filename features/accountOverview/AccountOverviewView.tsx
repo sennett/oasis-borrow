@@ -1,9 +1,10 @@
+import { ConnectWallet } from 'components/connectWallet/ConnectWallet'
 import { AppLink } from 'components/Links'
 import { IlkOverview } from 'features/landing/ilksOverview'
 import { Vault } from 'features/vaults/vault'
 import { formatCryptoBalance, formatFiatBalance, formatPercent } from 'helpers/formatters/format'
 import React from 'react'
-import { Button, Heading } from 'theme-ui'
+import { Button, Grid, Heading } from 'theme-ui'
 
 import { Table, TokenSymbol } from '../landing/LandingView'
 import { AccountOverview } from './accountOverview'
@@ -13,7 +14,7 @@ function VaultsTable({ vaults }: { vaults: Vault[] }) {
     <Table
       header={
         <>
-          <Table.Header>Id</Table.Header>
+          {/* <Table.Header>Id</Table.Header> */}
           <Table.Header>Asset</Table.Header>
           <Table.Header>Type</Table.Header>
           <Table.Header sx={{textAlign: 'right'}}>Deposited</Table.Header>
@@ -26,7 +27,7 @@ function VaultsTable({ vaults }: { vaults: Vault[] }) {
     >
       {vaults.map((vault) => (
         <Table.Row key={vault.id}>
-          <Table.Cell>{vault.id}</Table.Cell>
+          {/* <Table.Cell>{vault.id}</Table.Cell> */}
           <Table.Cell><TokenSymbol token={vault.token} /></Table.Cell>
           <Table.Cell>{vault.ilk}</Table.Cell>
           <Table.Cell sx={{textAlign: 'right'}}>{`${formatCryptoBalance(vault.freeCollateral)} ${vault.token}`}</Table.Cell>
@@ -83,7 +84,7 @@ export function AccountOverviewView({
   vaultSummary,
 }: AccountOverview) {
   return (
-    <>
+    <Grid sx={{ flex: 1 }}>
       {vaultSummary && (
         <Heading>Total Dai: {formatCryptoBalance(vaultSummary.totalDaiDebt)}</Heading>
       )}
@@ -96,6 +97,6 @@ export function AccountOverviewView({
       {vaults && <VaultsTable vaults={vaults} />}
       <Heading>Vaults</Heading>
       {ilksOverview && <AllIlks ilks={ilksOverview} />}
-    </>
+    </Grid>
   )
 }

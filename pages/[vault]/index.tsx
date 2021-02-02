@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js'
 import { useAppContext } from 'components/AppContextProvider'
-import { Balances } from 'components/Balances'
 import { AppLayout } from 'components/Layouts'
 import { VaultView } from 'features/vaults/VaultView'
 import { useObservable } from 'helpers/observableHook'
@@ -33,8 +32,3 @@ export default function Vault() {
 }
 
 Vault.layout = AppLayout
-Vault.layoutProps = {
-  backLink: {
-    href: '/',
-  },
-}

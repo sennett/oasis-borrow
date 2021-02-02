@@ -24,15 +24,7 @@ function Summary({ address }: { address: string }) {
     return null
   }
 
-  return (
-    <Grid sx={{ flex: 1 }}>
-      <Text>Connected Address :: {(web3Context as any)?.account}</Text>
-      <Text>Viewing Address :: {address}</Text>
-      <Text>ProxyAddress :: {proxyAddress}</Text>
-      <Text>ProxyOwner :: {proxyAddress ? <ProxyOwner proxyAddress={proxyAddress} /> : null}</Text>
-      <AccountOverviewView {...accountOverview} />
-    </Grid>
-  )
+  return <AccountOverviewView {...accountOverview} />
 }
 
 export default function VaultsSummary() {
