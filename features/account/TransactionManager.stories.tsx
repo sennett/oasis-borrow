@@ -1,3 +1,8 @@
+import { TxState, TxStatus } from '@oasisdex/transactions'
+import BigNumber from 'bignumber.js'
+
+import { TxMetaKind } from '../../blockchain/calls/txMeta'
+import { TxData } from '../../components/AppContext'
 
 // interface MockContextProviderProps extends WithChildren {
 //   web3Context?: Web3Context
@@ -18,78 +23,80 @@
 // const stories = storiesOf('Transaction Notifications', module)
 // const storiesModal = storiesOf('Transactions Modal', module)
 //
-// const startTime = new Date()
-// startTime.setSeconds(startTime.getSeconds() - 55)
+
+const startTime = new Date()
+startTime.setSeconds(startTime.getSeconds() - 55)
+
+const protoTx = {
+  account: '0xe6ac5629b9ade2132f42887fbbc3a3860afbd07b',
+  networkId: '0',
+  txNo: 2,
+  start: startTime,
+  lastChange: new Date(),
+  dismissed: false,
+  meta: {
+    kind: TxMetaKind.createDsProxy,
+  } as TxData,
+}
+
+export const protoSignTx: TxState<TxData> = {
+  ...protoTx,
+  status: TxStatus.WaitingForApproval,
+}
+
+export const protoCancelledTx: TxState<TxData> = {
+  ...protoTx,
+  status: TxStatus.CancelledByTheUser,
+  error: new Error('error'),
+}
+
+export const protoPendingTx: TxState<TxData> = {
+  ...protoTx,
+  status: TxStatus.WaitingForConfirmation,
+  txHash: '0x123',
+  broadcastedAt: new Date(),
+}
+
+export const protoPropagatingTx: TxState<TxData> = protoPendingTx
+
+export const protoFailureTx: TxState<TxData> = {
+  ...protoTx,
+  status: TxStatus.Failure,
+  txHash: '0x123',
+  blockNumber: 1234,
+  receipt: {
+    transactionHash: '0x123',
+    status: false,
+    blockNumber: 1234,
+  },
+}
 //
-// const protoTx = {
-//   account: '0xe6ac5629b9ade2132f42887fbbc3a3860afbd07b',
-//   networkId: '0',
-//   txNo: 2,
-//   start: startTime,
-//   lastChange: new Date(),
-//   dismissed: false,
-//   meta: {
-//     kind: TxMetaKind.setupDSProxy,
-//   } as TxData,
-// }
-//
-// const protoSignTx: TxState<TxData> = {
-//   ...protoTx,
-//   status: TxStatus.WaitingForApproval,
-// }
-//
-// const protoCancelledTx: TxState<TxData> = {
-//   ...protoTx,
-//   status: TxStatus.CancelledByTheUser,
-//   error: new Error('error'),
-// }
-//
-// export const protoPendingTx: TxState<TxData> = {
-//   ...protoTx,
-//   status: TxStatus.WaitingForConfirmation,
-//   txHash: '0x123',
-//   broadcastedAt: new Date(),
-// }
-//
-// const protoPropagatingTx: TxState<TxData> = protoPendingTx
-//
-// const protoFailureTx: TxState<TxData> = {
-//   ...protoTx,
-//   status: TxStatus.Failure,
-//   txHash: '0x123',
-//   blockNumber: 1234,
-//   receipt: {
-//     transactionHash: '0x123',
-//     status: false,
-//     blockNumber: 1234,
-//   },
-// }
-//
-// const protoErrorTx: TxState<TxData> = {
-//   ...protoTx,
-//   status: TxStatus.Error,
-//   txHash: '0x123',
-//   error: new Error('error'),
-// }
-//
-// export const protoSuccessTx: TxState<TxData> = {
-//   ...protoTx,
-//   status: TxStatus.Success,
-//   txHash: '0x123',
-//   blockNumber: 1234,
-//   receipt: {
-//     transactionHash: '0x123',
-//     status: true,
-//     blockNumber: 1234,
-//   },
-//   confirmations: 3,
-//   safeConfirmations: 1,
-//   meta: {
-//     amount: new BigNumber(1000.41),
-//     kind: TxMetaKind.transferEth,
-//     address: '0x',
-//   },
-// }
+
+export const protoErrorTx: TxState<TxData> = {
+  ...protoTx,
+  status: TxStatus.Error,
+  txHash: '0x123',
+  error: new Error('error'),
+}
+
+export const protoSuccessTx: TxState<TxData> = {
+  ...protoTx,
+  status: TxStatus.Success,
+  txHash: '0x123',
+  blockNumber: 1234,
+  receipt: {
+    transactionHash: '0x123',
+    status: true,
+    blockNumber: 1234,
+  },
+  confirmations: 3,
+  safeConfirmations: 1,
+  meta: {
+    amount: new BigNumber(1000.41),
+    kind: TxMetaKind.approve,
+    address: '0x',
+  },
+}
 //
 // const StoryContainer = ({ children, title }: { title: string } & WithChildren) => {
 //   if (!isAppContextAvailable()) return null
