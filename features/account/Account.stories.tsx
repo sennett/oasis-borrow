@@ -20,7 +20,6 @@ interface MockContextProviderProps extends WithChildren {
   web3Context: Web3Context
   title: string
   transactions?: TxState<TxData>[]
-  // onrampOrders?: OnrampOrder[]
 }
 
 const stories = storiesOf('Account in Header', module)
