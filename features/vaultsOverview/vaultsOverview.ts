@@ -22,17 +22,15 @@ export interface VaultsOverview {
   featuredIlks: FeaturedIlk[] | undefined
 }
 
-export function createFeaturedIlk$(
-  ilkDataList$: Observable<IlkDataList>,
+export function getFeaturedIlks(
+  ilkDataList: IlkDataList,
   selector: (ilks: IlkDataList) => IlkData | undefined,
   title: string,
-): Observable<FeaturedIlk> {
-  return ilkDataList$.pipe(
-    map((ilks) => ilks.filter(hasAllMetaInfo)),
-    map(selector),
-    filter((ilk): ilk is IlkData => ilk !== undefined),
-    map((ilk) => ({ ...ilk, title })),
-  )
+): FeaturedIlk | undefined {
+  const ilks = ilkDataList.filter(hasAllMetaInfo)
+  const featuredIlk = selector(ilks)
+
+  return featuredIlk ? { ...featuredIlk, title } : undefined
 }
 
 function hasAllMetaInfo(ilk: IlkData) {
@@ -58,10 +56,12 @@ export function getCheapest(ilks: IlkDataList) {
 }
 
 export function createFeaturedIlks$(ilkDataList$: Observable<IlkDataList>) {
-  return combineLatest(
-    createFeaturedIlk$(ilkDataList$, getNewest, 'New'),
-    createFeaturedIlk$(ilkDataList$, getMostPopular, 'Most Popular'),
-    createFeaturedIlk$(ilkDataList$, getCheapest, 'Cheapest'),
+  return ilkDataList$.pipe(
+    map(ilks => [
+      getFeaturedIlks(ilks, getNewest, 'new'),
+      getFeaturedIlks(ilks, getMostPopular, 'most-popular'),
+      getFeaturedIlks(ilks, getCheapest, 'cheapest'),
+    ] as const)
   )
 }
 
