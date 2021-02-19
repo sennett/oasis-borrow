@@ -1,9 +1,8 @@
-import BigNumber from 'bignumber.js'
 import { IlkData, IlkDataList } from 'blockchain/ilks'
 import { Context } from 'blockchain/network'
 import { getToken } from 'blockchain/tokensMetadata'
 import { Vault } from 'blockchain/vaults'
-import { getVaultsSummary, VaultSummary } from 'features/vault/vaultSummary'
+import { VaultSummary } from 'features/vault/vaultSummary'
 import { isEqual } from 'lodash'
 import maxBy from 'lodash/maxBy'
 import minBy from 'lodash/minBy'
@@ -16,16 +15,11 @@ export interface FeaturedIlk extends IlkData {
   title: string
 }
 
-export interface IlkDataWithBalance extends IlkData {
-  balance: BigNumber | undefined
-  balancePrice: BigNumber | undefined
-}
-
 export interface VaultsOverview {
   canOpenVault: boolean
   vaults: Vault[] | undefined
   vaultSummary: VaultSummary | undefined
-  ilkDataList: IlkDataWithBalance[] | undefined
+  ilkDataList: IlkDataList | undefined
   featuredIlks: FeaturedIlk[] | undefined
 }
 
@@ -75,34 +69,23 @@ export function createFeaturedIlks$(ilkDataList$: Observable<IlkDataList>) {
 export function createVaultsOverview$(
   context$: Observable<Context>,
   vaults$: (address: string) => Observable<Vault[]>,
+  vaultsSummary$: (address: string) => Observable<VaultSummary>,
   ilkDataList$: Observable<IlkDataList>,
   featuredIlks$: Observable<FeaturedIlk[]>,
-  balances$: (
-    address: string,
-  ) => Observable<Record<string, { price: BigNumber; balance: BigNumber }>>,
   address: string,
 ): Observable<VaultsOverview> {
   return combineLatest(
     context$,
     vaults$(address).pipe(startWith<Vault[] | undefined>(undefined)),
-    vaults$(address).pipe(map(getVaultsSummary), startWith<VaultSummary | undefined>(undefined)),
+    vaultsSummary$(address).pipe(startWith<VaultSummary | undefined>(undefined)),
     ilkDataList$.pipe(startWith<IlkDataList | undefined>(undefined)),
     featuredIlks$.pipe(startWith<FeaturedIlk[] | undefined>(undefined)),
-    balances$(address).pipe(
-      startWith<Record<string, { price: BigNumber; balance: BigNumber }>>({}),
-    ),
   ).pipe(
-    map(([context, vaults, vaultSummary, ilkDataList, featuredIlks, balances]) => ({
+    map(([context, vaults, vaultSummary, ilkDataList, featuredIlks]) => ({
       canOpenVault: context.status === 'connected',
       vaults,
       vaultSummary,
-      ilkDataList: ilkDataList
-        ? ilkDataList.map((ilk) => ({
-          ...ilk,
-          balance: balances[ilk.token]?.balance,
-          balancePrice: balances[ilk.token]?.price.times(balances[ilk.token]?.balance),
-        }))
-        : ilkDataList,
+      ilkDataList,
       featuredIlks,
     })),
     distinctUntilChanged(isEqual),

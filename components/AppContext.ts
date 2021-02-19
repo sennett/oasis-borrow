@@ -19,13 +19,14 @@ import {
 import { vatGem, vatIlk, vatUrns } from 'blockchain/calls/vat'
 import { createIlkData$, createIlkDataList$, createIlks$ } from 'blockchain/ilks'
 import { createGasPrice$, createTokenOraclePrice$ } from 'blockchain/prices'
-import { createAccountBalance$, createAllowance$, createBalance$ } from 'blockchain/tokens'
+import { createAllowance$, createBalance$ } from 'blockchain/tokens'
 import { createController$, createVault$, createVaults$ } from 'blockchain/vaults'
 import { pluginDevModeHelpers } from 'components/devModeHelpers'
 import { createDepositForm$, LockAndDrawData } from 'features/deposit/deposit'
 import { createLanding$ } from 'features/landing/landing'
 import { createOpenVault$ } from 'features/openVault/openVault'
 import { redirectState$ } from 'features/router/redirectState'
+import { createVaultSummary$ } from 'features/vault/vaultSummary'
 import { createFeaturedIlks$, createVaultsOverview$ } from 'features/vaultsOverview/vaultsOverview'
 import { mapValues } from 'lodash'
 import { memoize } from 'lodash'
@@ -180,6 +181,8 @@ export function setupAppContext() {
 
   const vaults$ = memoize(curry(createVaults$)(context$, proxyAddress$, vault$))
 
+  const vaultSummary$ = memoize(curry(createVaultSummary$)(vaults$))
+
   const depositForm$ = memoize(
     curry(createDepositForm$)(connectedContext$, balance$, txHelpers$, vault$),
     bigNumberTostring,
@@ -202,14 +205,8 @@ export function setupAppContext() {
 
   const featuredIlks$ = createFeaturedIlks$(ilkDataList$)
 
-  const accountBalances$ = curry(createAccountBalance$)(
-    balance$,
-    ilks$,
-    ilkToToken$,
-    tokenOraclePrice$,
-  )
   const vaultsOverview$ = memoize(
-    curry(createVaultsOverview$)(context$, vaults$, ilkDataList$, featuredIlks$, accountBalances$),
+    curry(createVaultsOverview$)(context$, vaults$, vaultSummary$, ilkDataList$, featuredIlks$),
   )
   const landing$ = curry(createLanding$)(ilkDataList$, featuredIlks$)
 
@@ -225,12 +222,13 @@ export function setupAppContext() {
     proxyOwner$,
     vaults$,
     vault$,
+    ilks$,
+    vaultSummary$,
     depositForm$,
     landing$,
     openVault$,
     vaultsOverview$,
     redirectState$,
-    accountBalances$,
   }
 }
 

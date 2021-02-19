@@ -1,112 +1,32 @@
-import React, { ReactNode } from 'react'
-import { Box, Container, SxStyleProp } from 'theme-ui'
+import React from 'react'
+import { Box, Grid, SxStyleProp } from 'theme-ui'
 
-export interface RowDefinition<T> {
-  header: ReactNode
-  cell: React.ComponentType<T>
+export interface TableRowProps {
+  left?: JSX.Element | string
+  center?: JSX.Element | string
+  right?: JSX.Element | string
+  sx?: SxStyleProp
+  onClick?: () => any
 }
 
-interface Props<T extends Record<K, string>, K extends keyof T> {
-  data: T[]
-  rowDefinition: RowDefinition<T>[]
-  primaryKey: K
-}
-
-export function TableContainer({
-  header,
-  children,
-  sx,
-}: React.PropsWithChildren<{ header: ReactNode; sx?: SxStyleProp }>) {
+export function TableRow({ left, center, right, sx, onClick }: TableRowProps) {
   return (
-    <Container
+    <Grid
+      columns={['2fr 1fr 2fr']}
+      gap={0}
       sx={{
-        p: 0,
-        borderCollapse: 'separate',
-        borderSpacing: '0 9px',
-        ...sx,
-      }}
-      as="table"
-    >
-      <Box as="thead">
-        <Box as="tr">{header}</Box>
-      </Box>
-      <Box as="tbody">{children}</Box>
-    </Container>
-  )
-}
-
-function Row({ children, sx }: React.PropsWithChildren<{ sx?: SxStyleProp }>) {
-  return (
-    <Box
-      sx={{
-        boxShadow: 'table',
-        background: 'white',
-        borderRadius: '8px',
-        ...sx,
-      }}
-      as="tr"
-    >
-      {children}
-    </Box>
-  )
-}
-
-function Cell({ children, sx }: React.PropsWithChildren<{ sx?: SxStyleProp }>) {
-  return (
-    <Box
-      sx={{
-        p: 3,
-        ':first-child': {
-          borderRadius: '8px 0 0 8px',
-        },
-        ':last-child': {
-          borderRadius: '0 8px 8px 0',
-        },
-        ...sx,
-      }}
-      as="td"
-    >
-      {children}
-    </Box>
-  )
-}
-
-function Header({ children, sx }: React.PropsWithChildren<{ sx?: SxStyleProp }>) {
-  return (
-    <Box
-      sx={{
+        variant: onClick ? 'styles.row.clickable' : '',
+        py: 2,
         px: 3,
-        color: 'text.muted',
-        fontSize: 2,
-        textAlign: 'left',
+        fontSize: 3,
+        mb: 1,
         ...sx,
       }}
-      as="th"
+      onClick={onClick || undefined}
     >
-      {children}
-    </Box>
-  )
-}
-export function Table<T extends Record<K, string>, K extends keyof T>({
-  data,
-  rowDefinition,
-  primaryKey,
-}: Props<T, K>) {
-  return (
-    <TableContainer
-      header={rowDefinition.map(({ header }, index) => (
-        <Header key={index}>{header}</Header>
-      ))}
-    >
-      {data.map((row) => (
-        <Row key={row[primaryKey]}>
-          {rowDefinition.map(({ cell: Content }, idx) => (
-            <Cell key={idx}>
-              <Content {...row} />
-            </Cell>
-          ))}
-        </Row>
-      ))}
-    </TableContainer>
+      <Box sx={{ width: '100%', textAlign: 'left' }}>{left}</Box>
+      <Box sx={{ width: '100%', textAlign: 'center' }}>{center}</Box>
+      <Box sx={{ width: '100%', textAlign: 'right' }}>{right}</Box>
+    </Grid>
   )
 }
