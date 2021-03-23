@@ -3,7 +3,6 @@ import cookieParser from 'cookie-parser'
 import express from 'express'
 import basicAuth from 'express-basic-auth'
 import jwt from 'express-jwt'
-import morgan from 'morgan'
 
 import { Config } from './config'
 import { contactFormMiddleware } from './middleware/emails'
@@ -40,10 +39,6 @@ export function getApp(
 
   app.use(bodyParser.json())
   app.use(cookieParser())
-
-  if (!config.disableRequestLogging) {
-    app.use('/api', morgan('tiny'))
-  }
 
   app.use('/api/auth', jwtAuthMiddleware(config))
   app.use('/api/tos', jwt({ secret: config.userJWTSecret, algorithms: ['HS512'] }), tosRoutes())
