@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - dev
+      - debug
 
 name: Deploy to Staging
 
