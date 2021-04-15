@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - dev
+      - gg/sw-conf
 
 name: Deploy to Staging
 
