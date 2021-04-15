@@ -5,7 +5,7 @@
   "orientation": "portrait",
   "theme_color": "#FFFFFF",
   "background_color": "#FFFFFF",
-  "start_url": "/",
+  "start_url": ".",
   "icons": [
     {
       "src": "/static/icons/android-icon-192x192.png",
