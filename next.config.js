@@ -25,7 +25,7 @@ module.exports = withBundleAnalyzer(
           // !! WARN !!
           ignoreBuildErrors: isProduction,
         },
-        sw: '/borrow/sw.js',
+        sw: '/sw.js',
         cssModules: true,
         pageExtensions: ['mdx', 'tsx'],
         publicRuntimeConfig: {
