@@ -1,5 +1,4 @@
 import bodyParser from 'body-parser'
-import * as path from 'path'
 import cookieParser from 'cookie-parser'
 import express from 'express'
 import basicAuth from 'express-basic-auth'
@@ -55,16 +54,6 @@ export function getApp(config: Config, { nextHandler }: Dependencies): express.A
     }
     console.error('Internal error occured!', err)
     res.status(500).send({ name: 'InternalError' })
-  })
-
-  app.get('/sw.js', (req, res) => {
-    console.log('REQUESTED PATH', req.path)
-    res.sendFile(path.resolve(__dirname, '../public', 'sw.js'))
-  })
-
-  app.get('/workbox-*', (req, res) => {
-    console.log('REQUESTED PATH', req.path)
-    res.sendFile(path.resolve(__dirname, '../public', req.path.replace('/', '')))
   })
 
   app.all('*', nextHandler)

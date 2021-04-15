@@ -25,7 +25,6 @@ module.exports = withBundleAnalyzer(
           // !! WARN !!
           ignoreBuildErrors: isProduction,
         },
-        sw: '/sw.js',
         cssModules: true,
         pageExtensions: ['mdx', 'tsx'],
         publicRuntimeConfig: {
@@ -78,6 +77,8 @@ module.exports = withBundleAnalyzer(
           disable: process.env.NODE_ENV !== 'production',
           register: process.env.NODE_ENV === 'production',
           dest: 'public',
+          sw: './borrow/sw.js',
+          scope: './borrow/',
         },
         i18n,
       }),
