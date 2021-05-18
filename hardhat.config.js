@@ -9,7 +9,7 @@ module.exports = {
       chainId: 2137,
       forking: {
         url: 'https://eth-mainnet.alchemyapi.io/v2/IHJOWZSabgMvTt3kjXnZ0Urzo8FFweES',
-        blockNumber: 12192700,
+        blockNumber: 12452000,
       },
       mining: {
         auto: true,

@@ -242,41 +242,69 @@ async function main() {
 
   const { curr } = await getPriceData(provider)
   const userProxyAddress = await getOrCreateProxy(provider, user)
-  const collateralAmount = new BigNumber(10) // 10 ETH
-  const collateralAmountUSD = collateralAmount.multipliedBy(curr)
-  const generateAmountUnsafe = collateralAmountUSD.dividedToIntegerBy(1.5) // 150%
-  const generateAmountSafe = collateralAmountUSD.dividedToIntegerBy(2.5) // 250%
+  // const collateralAmount = new BigNumber(10) // 10 ETH
+  // const collateralAmountUSD = collateralAmount.multipliedBy(curr)
+  // const generateAmountUnsafe = collateralAmountUSD.dividedToIntegerBy(1.5) // 150%
+  // const generateAmountSafe = collateralAmountUSD.dividedToIntegerBy(2.5) // 250%
 
-  const safe = await openLockETHAndDraw(
-    provider,
-    user,
-    collateralAmount,
-    generateAmountSafe,
+  // const safe = await openLockETHAndDraw(
+  //   provider,
+  //   user,
+  //   collateralAmount,
+  //   generateAmountSafe,
+  //   userProxyAddress,
+  // ) // CDP with 250% collateralization rate
+
+  // const unsafe = await openLockETHAndDraw(
+  //   provider,
+  //   user,
+  //   collateralAmount,
+  //   generateAmountUnsafe,
+  //   userProxyAddress,
+  // ) // CDP with 150% collateralization rate. Can be liquidated on next price update when the rate drops to 146%
+
+  // const toLiquidate = await openLockETHAndDraw(
+  //   provider,
+  //   user,
+  //   collateralAmount,
+  //   generateAmountUnsafe,
+  //   userProxyAddress,
+  // ) // CDP with 150% collateralization rate. Will be liquidated on next price update
+
+  // await triggerPriceUpdate(provider, liquidator)
+  // await liquidateCDP(provider, liquidator, toLiquidate)
+
+  // console.log('Safe CDP', safe.id)
+  // console.log('Unsafe CDP', unsafe.id)
+  // console.log('Liquidated CDP', toLiquidate.id)
+
+
+  provider.send('hardhat_impersonateAccount', ['0xf79319b110F56bc4F1f5A6947699273aCABC956C']);
+
+  const signer = await provider.getSigner(
+    "0xf79319b110F56bc4F1f5A6947699273aCABC956C"
+  );
+  console.log('signer', signer );
+
+  const address = await signer.getAddress()
+  const proxyAddress = '0x5f64be558e3e2e8e958b19b8153ce9dd3bb577db';
+  const vaultId = 22998;
+
+  const dssProxyActionsInterface = new ethers.utils.Interface(dssProxyActionsAbi)
+  const proxyAction = dssProxyActionsInterface.encodeFunctionData('give', [
+    CDP_MANAGER,
+    vaultId,
     userProxyAddress,
-  ) // CDP with 250% collateralization rate
-
-  const unsafe = await openLockETHAndDraw(
-    provider,
-    user,
-    collateralAmount,
-    generateAmountUnsafe,
-    userProxyAddress,
-  ) // CDP with 150% collateralization rate. Can be liquidated on next price update when the rate drops to 146%
-
-  const toLiquidate = await openLockETHAndDraw(
-    provider,
-    user,
-    collateralAmount,
-    generateAmountUnsafe,
-    userProxyAddress,
-  ) // CDP with 150% collateralization rate. Will be liquidated on next price update
-
-  await triggerPriceUpdate(provider, liquidator)
-  await liquidateCDP(provider, liquidator, toLiquidate)
-
-  console.log('Safe CDP', safe.id)
-  console.log('Unsafe CDP', unsafe.id)
-  console.log('Liquidated CDP', toLiquidate.id)
+  ])
+  const dsProxy: DsProxy = new ethers.Contract(proxyAddress, dsProxyAbi, provider).connect(
+    signer,
+  ) as any
+  await (
+    await dsProxy['execute(address,bytes)'](PROXY_ACTIONS, proxyAction, {    
+      from: address,
+      gasLimit: 5000000,
+    })
+  ).wait()
 }
 
 main()
