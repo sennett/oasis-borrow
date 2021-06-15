@@ -50,8 +50,31 @@ function OpenVaultForm(props: OpenVaultState) {
   const { isEditingStage, isProxyStage, isAllowanceStage, isOpenStage } = props
 
   return (
-    <Box>
-      <Card variant="surface" sx={{ boxShadow: 'card', borderRadius: 'mediumLarge', px: 4, py: 3 }}>
+    <Box
+      sx={{
+        '&:before': {
+          content: '""',
+          position: 'absolute',
+          background: 'black',
+          opacity: 0,
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          zIndex: -1,
+          transition: 'opacity 0.2s',
+        },
+        '&:focus-within': {
+          '&:before': {
+            opacity: 0.4,
+          },
+        },
+      }}
+    >
+      <Card
+        variant="surface"
+        sx={{ boxShadow: 'card', borderRadius: 'mediumLarge', px: 4, py: 3, zIndex: 5 }}
+      >
         <Grid sx={{ mt: 2 }}>
           <OpenVaultTitle {...props} />
           {isEditingStage && <OpenVaultEditing {...props} />}
