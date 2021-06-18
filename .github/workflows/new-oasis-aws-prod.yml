@@ -3,7 +3,7 @@ on:
     branches:
       - new_oasis.app
 
-name: Deploy to NEW oazo AWS Production
+name: Deploy to NEW OASIS AWS Production
 
 jobs:
   deploy:
