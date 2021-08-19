@@ -101,6 +101,8 @@ export function createExchangeChange$(
     switchMap((state) =>
       every5Seconds$.pipe(
         switchMap(() => {
+          console.log('every 5 secs')
+
           if (state.buyingCollateral.gt(0) && state.quote?.status === 'SUCCESS') {
             return exchangeQuote$(
               state.token,
