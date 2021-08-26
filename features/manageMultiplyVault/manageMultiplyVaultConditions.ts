@@ -250,6 +250,7 @@ export function applyManageVaultConditions(
     swap,
     exchangeError,
     otherAction,
+    priceInfo,
   } = state
   const depositAndWithdrawAmountsEmpty = isNullish(depositAmount) && isNullish(withdrawAmount)
   const generateAndPaybackAmountsEmpty = isNullish(generateAmount) && isNullish(paybackAmount)
@@ -314,6 +315,22 @@ export function applyManageVaultConditions(
 
   const generateAmountExceedsDaiYieldFromTotalCollateral =
     !generateAmountExceedsDebtCeiling && !!generateAmountCalc.gt(maxGenerateAmountAtCurrentPrice)
+
+  // console.log(`
+  //   generateexceeds ${generateAmountExceedsDaiYieldFromTotalCollateral}
+  //   ceiling ${generateAmountExceedsDebtCeiling}
+
+  //   absolute ${generateAmountCalc.toFixed()}
+  //   max at current ${maxGenerateAmountAtCurrentPrice.toFixed()}
+
+  //   afterdebt ${afterDebt.toFixed()}
+  //   vault debt ${vault.debt.toFixed()}
+
+  //   vaylt coll ration ${vault.collateralizationRatio.toFixed()}
+  //   vault collateral ${vault.freeCollateral.toFixed()}
+
+  //   ilkData ${priceInfo.collateralPricePercentageChange}
+  // `)
 
   const generateAmountExceedsDaiYieldFromTotalCollateralAtNextPrice =
     !generateAmountExceedsDebtCeiling &&

@@ -67,7 +67,7 @@ export function applyExchange(change: OpenMultiplyVaultChange, state: OpenMultip
   return state
 }
 
-export const SLIPPAGE = new BigNumber(0.05)
+export const SLIPPAGE = new BigNumber(0.005)
 
 export function quoteToChange(quote: Quote) {
   return quote.status === 'SUCCESS'

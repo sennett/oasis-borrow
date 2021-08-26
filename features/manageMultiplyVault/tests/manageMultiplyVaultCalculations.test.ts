@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { expect } from 'chai'
 import { zero } from 'helpers/zero'
 
+import { SLIPPAGE } from '../manageMultiplyQuote'
 import { getVaultChange } from '../manageMultiplyVaultCalculations'
 
 describe('Adjust multiply calculations', () => {
@@ -12,7 +13,6 @@ describe('Adjust multiply calculations', () => {
     const lockedCollateral = new BigNumber(5)
     const oraclePrice = new BigNumber(1000)
     const marketPrice = new BigNumber(1010)
-    const slippage = new BigNumber(0.05)
 
     const requiredCollRatio = new BigNumber(2)
 
@@ -25,7 +25,7 @@ describe('Adjust multiply calculations', () => {
       lockedCollateral,
       currentCollateralPrice: oraclePrice,
       marketPrice,
-      slippage,
+      slippage: SLIPPAGE,
       depositAmount: zero,
       paybackAmount: zero,
       withdrawAmount: zero,
@@ -47,7 +47,6 @@ describe('Adjust multiply calculations', () => {
     const lockedCollateral = new BigNumber(5)
     const oraclePrice = new BigNumber(1000)
     const marketPrice = new BigNumber(1010)
-    const slippage = new BigNumber(0.05)
 
     const requiredCollRatio = new BigNumber(5)
 
@@ -60,7 +59,7 @@ describe('Adjust multiply calculations', () => {
       lockedCollateral,
       currentCollateralPrice: oraclePrice,
       marketPrice,
-      slippage,
+      slippage: SLIPPAGE,
       depositAmount: zero,
       paybackAmount: zero,
       withdrawAmount: zero,

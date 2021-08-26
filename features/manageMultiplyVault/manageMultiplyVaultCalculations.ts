@@ -535,6 +535,8 @@ export function applyManageVaultCalculations(
     FF: LOAN_FEE,
   })
 
+  console.log(`debt delta ${debtDelta.toFixed()} for ${slippage.toFixed()}`)
+
   const fees = BigNumber.sum(loanFee, oazoFee)
 
   const afterDebt = debt.plus(debtDelta).plus(loanFee)

@@ -19,11 +19,12 @@ module.exports = {
   extension: ['ts'],
   watchExtensions: ['ts'],
   spec: [
-    './helpers/**/*.test.ts',
-    './helpers/**/*.test.tsx',
-    './components/**/*.test.ts',
-    './features/**/*.test.ts',
-    './blockchain/**/*.test.ts',
+    // './helpers/**/*.test.ts',
+    // './helpers/**/*.test.tsx',
+    // './components/**/*.test.ts',
+    // './features/**/*.test.ts',
+    './features/manageMultiplyVault/tests/manageMultiplyVaultAdjustPositionValidations.test.ts',
+    // './blockchain/**/*.test.ts',
   ],
   timeout: 1000,
 }

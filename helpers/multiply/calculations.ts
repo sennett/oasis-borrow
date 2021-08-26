@@ -25,6 +25,12 @@ export function calculateParamsIncreaseMP(
         .times(one.plus(FF))
         .minus(oraclePrice.times(one.minus(OF))),
     )
+
+  console.log(`
+      debt ${debt.toFixed()}
+      market price ${marketPriceSlippage.toFixed()}
+    `)
+
   const collateral = debt.times(one.minus(OF)).div(marketPriceSlippage)
   return [debt, collateral]
 }
@@ -132,6 +138,7 @@ export function getMultiplyParams(
       slippage,
       providedDai,
     )
+
     return {
       debtDelta,
       collateralDelta,
