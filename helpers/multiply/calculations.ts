@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { MAX_COLL_RATIO } from 'features/openMultiplyVault/openMultiplyVaultCalculations'
 import { one, zero } from 'helpers/zero'
 
-export const MULTIPLY_FEE = new BigNumber(0.01)
+export const MULTIPLY_FEE = new BigNumber(0.002)
 export const LOAN_FEE = new BigNumber(0.009)
 export function calculateParamsIncreaseMP(
   oraclePrice: BigNumber,
@@ -25,30 +25,21 @@ export function calculateParamsIncreaseMP(
         .times(one.plus(FF))
         .minus(oraclePrice.times(one.minus(OF))),
     )
+  const collateral = debt.times(one.minus(OF)).div(marketPriceSlippage)
 
   console.log(`
-      debt ${debt.toFixed()}
-
-
-      numberup = ${marketPriceSlippage.times(
-        currentCollateral.times(oraclePrice).minus(requiredCollRatio.times(currentDebt)),
-      )}
-      times = ${currentCollateral.times(oraclePrice).minus(requiredCollRatio.times(currentDebt))}
-      plus = ${oraclePrice.times(depositDai).minus(oraclePrice.times(depositDai).times(OF))}
-      divided by ${marketPriceSlippage
-        .times(requiredCollRatio)
-        .times(one.plus(FF))
-        .minus(oraclePrice.times(one.minus(OF)))}
-
-
-      ${marketPriceSlippage.toFixed()} - max market price + slippage
-      ${marketPrice.toFixed()} - market price
       ${oraclePrice.toFixed()} - oracle price
-      ${currentDebt.toFixed()} - current debt
+      ${slippage.toFixed()} - slippage
+      ${marketPrice.toFixed()} - market price
+      ${marketPriceSlippage.toFixed()} - max market price + slippage
+
       ${currentCollateral.toFixed()} - current collateral
+      ${currentDebt.toFixed()} - current debt
+      ${FF.toFixed()} FF
+      ${OF.toFixed()} OF
     `)
 
-  const collateral = debt.times(one.minus(OF)).div(marketPriceSlippage)
+  // const collateral = debt.times(one.minus(OF)).div(marketPriceSlippage)
   return [debt, collateral]
 }
 
