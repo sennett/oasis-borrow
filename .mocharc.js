@@ -24,6 +24,7 @@ module.exports = {
     // './components/**/*.test.ts',
     // './features/**/*.test.ts',
     './features/manageMultiplyVault/tests/manageMultiplyVaultAdjustPositionValidations.test.ts',
+    // './features/manageMultiplyVault/tests/manageMultiplyVaultCalculations.test.ts',
     // './blockchain/**/*.test.ts',
   ],
   timeout: 1000,

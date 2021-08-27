@@ -535,7 +535,12 @@ export function applyManageVaultCalculations(
     FF: LOAN_FEE,
   })
 
-  console.log(`debt delta ${debtDelta.toFixed()} for ${slippage.toFixed()}`)
+  console.log(`
+    debt delta ${debtDelta.toFixed()}
+    collateral delta ${collateralDelta.toFixed()}
+    collRatio ${requiredCollRatio?.toFixed()}
+    for ${slippage.toFixed()}
+  `)
 
   const fees = BigNumber.sum(loanFee, oazoFee)
 

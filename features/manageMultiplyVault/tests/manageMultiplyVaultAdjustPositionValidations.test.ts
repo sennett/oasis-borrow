@@ -16,12 +16,16 @@ describe('manageVaultAdjustPositionValidations', () => {
 
     // console.log(state().requiredCollRatio?.toFixed())
     // console.log(state().afterCollateralizationRatio?.toFixed())
+    console.log(state().multiply.toFixed())
     state().updateRequiredCollRatio!(requiredCollRatioDanger)
     // console.log(state().requiredCollRatio?.toFixed())
     // console.log(state().afterCollateralizationRatio?.toFixed())
 
     console.log(state().errorMessages)
     console.log(state().warningMessages)
+    console.log(state().afterDebt.toFixed())
+    console.log(state().afterLockedCollateral.toFixed())
+    console.log(state().afterMultiply.toFixed())
     // console.log(state().ilkData.liquidationRatio.toFixed())
     // console.log(state().ilkData.collateralizationDangerThreshold.toFixed())
 

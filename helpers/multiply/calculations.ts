@@ -43,6 +43,9 @@ export function calculateParamsIncreaseMP(
 
       ${marketPriceSlippage.toFixed()} - max market price + slippage
       ${marketPrice.toFixed()} - market price
+      ${oraclePrice.toFixed()} - oracle price
+      ${currentDebt.toFixed()} - current debt
+      ${currentCollateral.toFixed()} - current collateral
     `)
 
   const collateral = debt.times(one.minus(OF)).div(marketPriceSlippage)
