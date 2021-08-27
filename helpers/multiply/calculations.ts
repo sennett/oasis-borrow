@@ -28,7 +28,21 @@ export function calculateParamsIncreaseMP(
 
   console.log(`
       debt ${debt.toFixed()}
-      market price ${marketPriceSlippage.toFixed()}
+
+
+      numberup = ${marketPriceSlippage.times(
+        currentCollateral.times(oraclePrice).minus(requiredCollRatio.times(currentDebt)),
+      )}
+      times = ${currentCollateral.times(oraclePrice).minus(requiredCollRatio.times(currentDebt))}
+      plus = ${oraclePrice.times(depositDai).minus(oraclePrice.times(depositDai).times(OF))}
+      divided by ${marketPriceSlippage
+        .times(requiredCollRatio)
+        .times(one.plus(FF))
+        .minus(oraclePrice.times(one.minus(OF)))}
+
+
+      ${marketPriceSlippage.toFixed()} - max market price + slippage
+      ${marketPrice.toFixed()} - market price
     `)
 
   const collateral = debt.times(one.minus(OF)).div(marketPriceSlippage)

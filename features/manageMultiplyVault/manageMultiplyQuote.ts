@@ -75,6 +75,7 @@ export function applyExchange(change: ManageMultiplyVaultChange, state: ManageMu
   return state
 }
 
+// export const SLIPPAGE = new BigNumber(0.25)
 // export const SLIPPAGE = new BigNumber(0.05)
 export const SLIPPAGE = new BigNumber(0.005)
 

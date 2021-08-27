@@ -617,35 +617,37 @@ export function applyManageVaultCalculations(
   const netValueUSD = lockedCollateral.times(currentCollateralPrice).minus(debt)
   const afterNetValueUSD = afterLockedCollateral.times(currentCollateralPrice).minus(debt)
 
-  const { collateralDelta: buyingPower } = getVaultChange({
-    currentCollateralPrice,
-    marketPrice,
-    slippage: SLIPPAGE,
-    debt,
-    lockedCollateral,
-    requiredCollRatio: liquidationRatio,
-    depositAmount: zero,
-    paybackAmount: zero,
-    generateAmount: zero,
-    withdrawAmount: zero,
-    OF: MULTIPLY_FEE,
-    FF: LOAN_FEE,
-  })
+  const buyingPower = new BigNumber(0)
+  const afterBuyingPower = new BigNumber(0)
+  // const { collateralDelta: buyingPower } = getVaultChange({
+  //   currentCollateralPrice,
+  //   marketPrice,
+  //   slippage: SLIPPAGE,
+  //   debt,
+  //   lockedCollateral,
+  //   requiredCollRatio: liquidationRatio,
+  //   depositAmount: zero,
+  //   paybackAmount: zero,
+  //   generateAmount: zero,
+  //   withdrawAmount: zero,
+  //   OF: MULTIPLY_FEE,
+  //   FF: LOAN_FEE,
+  // })
 
-  const { collateralDelta: afterBuyingPower } = getVaultChange({
-    currentCollateralPrice,
-    marketPrice,
-    slippage: SLIPPAGE,
-    debt: afterDebt,
-    lockedCollateral: afterLockedCollateral,
-    requiredCollRatio: liquidationRatio,
-    depositAmount: zero,
-    paybackAmount: zero,
-    generateAmount: zero,
-    withdrawAmount: zero,
-    OF: MULTIPLY_FEE,
-    FF: LOAN_FEE,
-  })
+  // const { collateralDelta: afterBuyingPower } = getVaultChange({
+  //   currentCollateralPrice,
+  //   marketPrice,
+  //   slippage: SLIPPAGE,
+  //   debt: afterDebt,
+  //   lockedCollateral: afterLockedCollateral,
+  //   requiredCollRatio: liquidationRatio,
+  //   depositAmount: zero,
+  //   paybackAmount: zero,
+  //   generateAmount: zero,
+  //   withdrawAmount: zero,
+  //   OF: MULTIPLY_FEE,
+  //   FF: LOAN_FEE,
+  // })
 
   const buyingPowerUSD = buyingPower.times(currentCollateralPrice)
   const afterBuyingPowerUSD = afterBuyingPower.times(currentCollateralPrice)

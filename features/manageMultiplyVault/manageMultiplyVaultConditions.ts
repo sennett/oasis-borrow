@@ -332,6 +332,11 @@ export function applyManageVaultConditions(
   //   ilkData ${priceInfo.collateralPricePercentageChange}
   // `)
 
+  console.log(`
+    absolute ${generateAmountCalc.toFixed()}
+    max at current ${maxGenerateAmountAtCurrentPrice.toFixed()}
+  `)
+
   const generateAmountExceedsDaiYieldFromTotalCollateralAtNextPrice =
     !generateAmountExceedsDebtCeiling &&
     !generateAmountExceedsDaiYieldFromTotalCollateral &&
