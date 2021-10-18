@@ -41,8 +41,12 @@ export function createGasPrice$(
     },
   }).pipe(
     tap((response) => {
-      if (response.status !== 200) throw new Error(response.responseText)
-      return response
+      if (response.status !== 200) {
+        return {
+          maxFeePerGas:0,
+          maxPriorityFeePerGas:0
+        }
+      }
     }),
     map(({ response }) => {
       const maxFeePerGas = new BigNumber(response.maxFeePerGas)
