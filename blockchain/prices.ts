@@ -46,6 +46,8 @@ export function createGasPrice$(
           maxFeePerGas:0,
           maxPriorityFeePerGas:0
         }
+      }else{
+        return response;
       }
     }),
     map(({ response }) => {
