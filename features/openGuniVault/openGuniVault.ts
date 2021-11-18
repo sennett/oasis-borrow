@@ -133,6 +133,18 @@ function applyExchange<S extends ExchangeState>(state: S, change: ExchangeChange
   }
 }
 
+function applyDepoDecreasedChanges<S extends ExchangeState>(
+  state: S,
+  change: { kind: 'depoDecreased'; depoDecreased: BigNumber },
+): S {
+  switch (change.kind) {
+    case 'depoDecreased':
+      return { ...state, depoDecreased: change.depoDecreased }
+    default:
+      return state
+  }
+}
+
 type OpenGuniChanges =
   | EnvironmentChange
   | FormChanges
@@ -188,14 +200,29 @@ export type OpenGuniVaultState = StageState &
 interface GuniCalculations {
   leveragedAmount?: BigNumber
   flAmount?: BigNumber
+  depoDecreased?: BigNumber
 }
 
-function applyCalculations<S extends { ilkData: IlkData; depositAmount?: BigNumber }>(
-  state: S,
-): S & GuniCalculations {
-  // TODO: missing fees
-  const leveragedAmount = state.depositAmount ? state.depositAmount.div(new BigNumber(0.021)) : zero
-  const flAmount = state.depositAmount ? leveragedAmount.minus(state.depositAmount) : zero
+function applyCalculations<
+  S extends { ilkData: IlkData; depositAmount?: BigNumber; depoDecreased?: BigNumber }
+>(state: S): S & GuniCalculations {
+  const {
+    depoDecreased,
+    ilkData: { liquidationRatio },
+    depositAmount,
+  } = state
+  let leveragedAmount
+
+  if (depoDecreased) {
+    leveragedAmount = depoDecreased.div(liquidationRatio.minus(one))
+    console.log('READY leveragedAmount', leveragedAmount.toNumber())
+  } else {
+    // leveragedAmount = depositAmount ? depositAmount.div(liquidationRatio.minus(one)) : zero //
+    leveragedAmount = depositAmount ? depositAmount.div(new BigNumber(0.021)) : zero //
+    console.log('NOT READY leveragedAmount', leveragedAmount.toNumber())
+  }
+
+  const flAmount = depositAmount ? leveragedAmount.minus(depositAmount) : zero
 
   return {
     ...state,
@@ -341,6 +368,40 @@ export function createOpenGuniVault$(
                     const token1Balance$ = observe(onEveryBlock$, context$, getToken1Balance)
                     const getGuniMintAmount$ = observe(onEveryBlock$, context$, getGuniMintAmount)
 
+                    const depoDecreasedChanges$: Observable<GuniTxDataChange> = change$.pipe(
+                      filter(
+                        (change) =>
+                          change.kind === 'depositAmount' || change.kind === 'depositMaxAmount',
+                      ),
+                      switchMap((change: DepositChange | DepositMaxChange) => {
+                        const { leveragedAmount } = applyCalculations({
+                          ilkData,
+                          depositAmount: change.depositAmount,
+                        })
+
+                        if (!leveragedAmount || leveragedAmount.isZero()) {
+                          return of(EMPTY)
+                        }
+
+                        return token1Balance$({
+                          token,
+                          leveragedAmount,
+                        }).pipe(
+                          distinctUntilChanged(compareBigNumber),
+                          map((daiAmountToSwapForUsdc /* USDC */) => {
+                            return {
+                              kind: 'depoDecreased',
+                              depoDecreased: change.depositAmount
+                                ? change.depositAmount.minus(
+                                    daiAmountToSwapForUsdc.times(OAZO_FEE.plus(SLIPPAGE)),
+                                  )
+                                : zero,
+                            }
+                          }),
+                        )
+                      }),
+                    )
+
                     const gUniDataChanges$: Observable<GuniTxDataChange> = change$.pipe(
                       filter(
                         (change) =>
@@ -365,13 +426,14 @@ export function createOpenGuniVault$(
                             const token0Amount = leveragedAmount.minus(daiAmountToSwapForUsdc)
                             const oazoFee = daiAmountToSwapForUsdc.times(OAZO_FEE)
                             const amountWithFee = daiAmountToSwapForUsdc.plus(oazoFee)
-                            const contractFee = amountWithFee.times(OAZO_FEE)
-                            const oneInchAmount = amountWithFee.minus(contractFee)
+                            // const contractFee = amountWithFee.times(OAZO_FEE)
+                            // const oneInchAmount = amountWithFee.minus(contractFee)
+                            const daiSwapAmount = daiAmountToSwapForUsdc.times(one.minus(OAZO_FEE))
 
                             return exchangeQuote$(
                               tokenInfo.token1,
                               SLIPPAGE,
-                              oneInchAmount,
+                              daiSwapAmount,
                               'BUY_COLLATERAL',
                             ).pipe(
                               switchMap((swap) => {
@@ -460,6 +522,7 @@ export function createOpenGuniVault$(
                       applyProxyChanges,
                       applyAllowanceChanges,
                       applyExchange,
+                      applyDepoDecreasedChanges,
                       applyGuniDataChanges,
                       applyGuniOpenVaultStageCategorisation,
                       applyGuniOpenVaultConditions,
@@ -470,6 +533,7 @@ export function createOpenGuniVault$(
                       balanceInfoChange$(balanceInfo$, token, account),
                       createIlkDataChange$(ilkData$, ilk),
                       // createInitialQuoteChange(exchangeQuote$, tokenInfo.token1),
+                      depoDecreasedChanges$,
                       gUniDataChanges$,
                       //createExchangeChange$(exchangeQuote$, stateSubject$),
                     )
