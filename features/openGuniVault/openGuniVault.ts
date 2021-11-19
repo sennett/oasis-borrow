@@ -29,7 +29,7 @@ import {
 import { BalanceInfo, balanceInfoChange$ } from 'features/shared/balanceInfo'
 import { PriceInfo, priceInfoChange$ } from 'features/shared/priceInfo'
 import { GasEstimationStatus, HasGasEstimation } from 'helpers/form'
-import { OAZO_FEE } from 'helpers/multiply/calculations'
+import { OAZO_FEE, SLIPPAGE } from 'helpers/multiply/calculations'
 import { one, zero } from 'helpers/zero'
 import { curry } from 'ramda'
 import { combineLatest, EMPTY, iif, merge, Observable, of, Subject, throwError } from 'rxjs'
@@ -133,16 +133,10 @@ function applyExchange<S extends ExchangeState>(state: S, change: ExchangeChange
   }
 }
 
-function applyDepoDecreasedChanges<S extends ExchangeState>(
-  state: S,
-  change: { kind: 'depoDecreased'; depoDecreased: BigNumber },
-): S {
-  switch (change.kind) {
-    case 'depoDecreased':
-      return { ...state, depoDecreased: change.depoDecreased }
-    default:
-      return state
-  }
+interface DepositDecreasedChange {
+  kind: 'depoDecreased'
+  depoDecreased: BigNumber
+  depositAmount: BigNumber
 }
 
 type OpenGuniChanges =
@@ -211,18 +205,25 @@ function applyCalculations<
     ilkData: { liquidationRatio },
     depositAmount,
   } = state
-  let leveragedAmount
 
-  if (depoDecreased) {
-    leveragedAmount = depoDecreased.div(liquidationRatio.minus(one))
-    console.log('READY leveragedAmount', leveragedAmount.toNumber())
-  } else {
-    // leveragedAmount = depositAmount ? depositAmount.div(liquidationRatio.minus(one)) : zero //
-    leveragedAmount = depositAmount ? depositAmount.div(new BigNumber(0.021)) : zero //
-    console.log('NOT READY leveragedAmount', leveragedAmount.toNumber())
+  if (!depositAmount) {
+    return {
+      ...state,
+      leveragedAmount: zero,
+      flAmount: zero,
+    }
   }
 
-  const flAmount = depositAmount ? leveragedAmount.minus(depositAmount) : zero
+  const leveragedAmount = depoDecreased
+    ? depoDecreased.div(liquidationRatio.minus(one))
+    : depositAmount.times(one.minus(OAZO_FEE).minus(SLIPPAGE)).div(liquidationRatio.minus(one))
+  const flAmount = leveragedAmount.minus(depositAmount)
+
+  if (depoDecreased) {
+    console.log('READY leveragedAmount', leveragedAmount.toNumber())
+  } else {
+    console.log('NOT READY leveragedAmount', leveragedAmount.toNumber())
+  }
 
   return {
     ...state,
@@ -368,7 +369,7 @@ export function createOpenGuniVault$(
                     const token1Balance$ = observe(onEveryBlock$, context$, getToken1Balance)
                     const getGuniMintAmount$ = observe(onEveryBlock$, context$, getGuniMintAmount)
 
-                    const depoDecreasedChanges$: Observable<GuniTxDataChange> = change$.pipe(
+                    const gUniDataChanges$: Observable<GuniTxDataChange> = change$.pipe(
                       filter(
                         (change) =>
                           change.kind === 'depositAmount' || change.kind === 'depositMaxAmount',
@@ -391,31 +392,25 @@ export function createOpenGuniVault$(
                           map((daiAmountToSwapForUsdc /* USDC */) => {
                             return {
                               kind: 'depoDecreased',
-                              depoDecreased: change.depositAmount
-                                ? change.depositAmount.minus(
-                                    daiAmountToSwapForUsdc.times(OAZO_FEE.plus(SLIPPAGE)),
-                                  )
-                                : zero,
+                              depoDecreased: change.depositAmount!.minus(
+                                daiAmountToSwapForUsdc.times(OAZO_FEE.plus(SLIPPAGE)),
+                              ),
+                              depositAmount: change.depositAmount,
                             }
                           }),
                         )
                       }),
-                    )
-
-                    const gUniDataChanges$: Observable<GuniTxDataChange> = change$.pipe(
-                      filter(
-                        (change) =>
-                          change.kind === 'depositAmount' || change.kind === 'depositMaxAmount',
-                      ),
-                      switchMap((change: DepositChange | DepositMaxChange) => {
+                      switchMap((change: DepositDecreasedChange) => {
                         const { leveragedAmount, flAmount } = applyCalculations({
                           ilkData,
                           depositAmount: change.depositAmount,
+                          depoDecreased: change.depoDecreased,
                         })
 
                         if (!leveragedAmount || leveragedAmount.isZero()) {
                           return of(EMPTY)
                         }
+                        console.log('LeverageAmountUsedInTX', leveragedAmount.toNumber())
 
                         return token1Balance$({
                           token,
@@ -522,7 +517,7 @@ export function createOpenGuniVault$(
                       applyProxyChanges,
                       applyAllowanceChanges,
                       applyExchange,
-                      applyDepoDecreasedChanges,
+                      // applyDepoDecreasedChanges,
                       applyGuniDataChanges,
                       applyGuniOpenVaultStageCategorisation,
                       applyGuniOpenVaultConditions,
@@ -533,7 +528,7 @@ export function createOpenGuniVault$(
                       balanceInfoChange$(balanceInfo$, token, account),
                       createIlkDataChange$(ilkData$, ilk),
                       // createInitialQuoteChange(exchangeQuote$, tokenInfo.token1),
-                      depoDecreasedChanges$,
+                      // depoDecreasedChanges$,
                       gUniDataChanges$,
                       //createExchangeChange$(exchangeQuote$, stateSubject$),
                     )
@@ -551,6 +546,7 @@ export function createOpenGuniVault$(
                           { tokenToAllow: tokenInfo.token0 },
                           state,
                         ),
+                      // (state) => applyCalculations(state),
                       // (state) => openGuniVaultTransitions,
                     )
 
@@ -559,7 +555,7 @@ export function createOpenGuniVault$(
                       applyIsProxyStage,
                       applyIsAllowanceStage,
                       applyAllowanceConditions,
-                      applyCalculations,
+                      // applyCalculations,
                     )
 
                     return merge(change$, environmentChanges$).pipe(
